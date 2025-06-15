@@ -1,258 +1,278 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-contract HealthcareRecords {
+contract HealthcareManagement {
     struct Patient {
-        string name;
-        uint256 age;
-        string bloodType;
-        address patientAddress;
-        bool isRegistered;
-        uint256 recordCount;
-        mapping(uint256 => MedicalRecord) records;
-        mapping(address => bool) authorizedDoctors;
-    }
-
-    struct MedicalRecord {
-        uint256 recordId;
-        address doctor;
-        string diagnosis;
-        string treatment;
-        string medications;
-        uint256 timestamp;
+        string ipfsHash; // Encrypted health records stored on IPFS
         bool isActive;
+        uint256 createdAt;
+        uint256 updatedAt;
+        bool isEmergencyContact;
     }
 
     struct Doctor {
-        string name;
-        string specialization;
-        string licenseNumber;
-        address doctorAddress;
+        string ipfsHash; // Doctor credentials and info on IPFS
         bool isVerified;
-        uint256 patientCount;
+        bool isActive;
+        uint256 createdAt;
+        string specialization;
     }
 
-    uint256 public patientCount;
-    uint256 public doctorCount;
-    uint256 public totalRecords;
+    struct Appointment {
+        address patient;
+        address doctor;
+        uint256 scheduledTime;
+        uint256 createdAt;
+        bool isCompleted;
+        bool isCancelled;
+        string notes; // Optional notes
+    }
 
-    mapping(address => Patient) private patients;
-    mapping(address => Doctor) private doctors;
-    mapping(address => bool) public registeredPatients;
-    mapping(address => bool) public registeredDoctors;
+    struct MedicalRecord {
+        address doctor;
+        uint256 timestamp;
+        string ipfsHash; // Encrypted medical record on IPFS
+        string recordType; // "consultation", "test", "prescription", etc.
+    }
 
-    address public admin;
+    // Mappings
+    mapping(address => Patient) public patients;
+    mapping(address => Doctor) public doctors;
+    mapping(uint256 => Appointment) public appointments;
+    mapping(address => uint256[]) public patientAppointments;
+    mapping(address => uint256[]) public doctorAppointments;
+    mapping(address => MedicalRecord[]) public patientRecords;
+    mapping(address => mapping(address => bool)) public patientDoctorAccess;
 
-    event PatientRegistered(address indexed patient, string name);
-    event DoctorRegistered(address indexed doctor, string name, string specialization);
-    event DoctorAuthorized(address indexed patient, address indexed doctor);
-    event RecordAdded(address indexed patient, uint256 recordId, address indexed doctor);
+    // State variables
+    address public owner;
+    uint256 private appointmentCounter;
+    address[] public registeredDoctors;
+    address[] public registeredPatients;
+
+    // Events
+    event PatientRegistered(address indexed patient, string ipfsHash);
+    event DoctorRegistered(address indexed doctor, string ipfsHash, string specialization);
     event DoctorVerified(address indexed doctor);
+    event AppointmentScheduled(uint256 indexed appointmentId, address indexed patient, address indexed doctor, uint256 scheduledTime);
+    event AppointmentCompleted(uint256 indexed appointmentId);
+    event AppointmentCancelled(uint256 indexed appointmentId);
+    event MedicalRecordAdded(address indexed patient, address indexed doctor, string recordType);
+    event AccessGranted(address indexed patient, address indexed doctor);
+    event AccessRevoked(address indexed patient, address indexed doctor);
 
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Only admin can call this");
+    // Modifiers
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner");
         _;
     }
 
-    modifier onlyRegisteredPatient() {
-        require(registeredPatients[msg.sender], "Patient not registered");
+    modifier onlyPatient() {
+        require(patients[msg.sender].isActive, "Not a registered patient");
         _;
     }
 
-    modifier onlyRegisteredDoctor() {
-        require(registeredDoctors[msg.sender], "Doctor not registered");
+    modifier onlyDoctor() {
+        require(doctors[msg.sender].isActive, "Not a registered doctor");
         _;
     }
 
     modifier onlyVerifiedDoctor() {
-        require(doctors[msg.sender].isVerified, "Doctor not verified");
+        require(doctors[msg.sender].isActive && doctors[msg.sender].isVerified, "Not a verified doctor");
         _;
     }
 
     constructor() {
-        admin = msg.sender;
+        owner = msg.sender;
+        appointmentCounter = 1;
     }
 
-    function registerPatient(
-        string calldata _name,
-        uint256 _age,
-        string calldata _bloodType
-    ) external {
-        require(!registeredPatients[msg.sender], "Patient already registered");
-        require(_age > 0, "Age must be greater than 0");
-
-        Patient storage p = patients[msg.sender];
-        p.name = _name;
-        p.age = _age;
-        p.bloodType = _bloodType;
-        p.patientAddress = msg.sender;
-        p.isRegistered = true;
-        p.recordCount = 0;
-
-        registeredPatients[msg.sender] = true;
-        patientCount++;
-
-        emit PatientRegistered(msg.sender, _name);
+    // Ownership functions
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Invalid new owner");
+        owner = newOwner;
     }
 
-    function registerDoctor(
-        string calldata _name,
-        string calldata _specialization,
-        string calldata _licenseNumber
-    ) external {
-        require(!registeredDoctors[msg.sender], "Doctor already registered");
+    // Patient functions
+    function registerAsPatient(string calldata ipfsHash, bool isEmergencyContact) external {
+        require(bytes(ipfsHash).length > 0, "IPFS hash required");
+        require(!patients[msg.sender].isActive, "Already registered as patient");
 
-        Doctor storage d = doctors[msg.sender];
-        d.name = _name;
-        d.specialization = _specialization;
-        d.licenseNumber = _licenseNumber;
-        d.doctorAddress = msg.sender;
-        d.isVerified = false;
-        d.patientCount = 0;
+        patients[msg.sender] = Patient({
+            ipfsHash: ipfsHash,
+            isActive: true,
+            createdAt: block.timestamp,
+            updatedAt: block.timestamp,
+            isEmergencyContact: isEmergencyContact
+        });
 
-        registeredDoctors[msg.sender] = true;
-        doctorCount++;
-
-        emit DoctorRegistered(msg.sender, _name, _specialization);
+        registeredPatients.push(msg.sender);
+        emit PatientRegistered(msg.sender, ipfsHash);
     }
 
-    function verifyDoctor(address _doctorAddress) 
-        external 
-        onlyAdmin 
-    {
-        require(registeredDoctors[_doctorAddress], "Doctor not registered");
-        doctors[_doctorAddress].isVerified = true;
-        emit DoctorVerified(_doctorAddress);
-    }
-
-    function authorizeDoctor(address _doctorAddress) 
-        external 
-        onlyRegisteredPatient 
-    {
-        require(registeredDoctors[_doctorAddress], "Doctor not registered");
-        require(doctors[_doctorAddress].isVerified, "Doctor not verified");
+    function updatePatientProfile(string calldata ipfsHash, bool isEmergencyContact) external onlyPatient {
+        require(bytes(ipfsHash).length > 0, "IPFS hash required");
         
-        patients[msg.sender].authorizedDoctors[_doctorAddress] = true;
-        emit DoctorAuthorized(msg.sender, _doctorAddress);
+        patients[msg.sender].ipfsHash = ipfsHash;
+        patients[msg.sender].updatedAt = block.timestamp;
+        patients[msg.sender].isEmergencyContact = isEmergencyContact;
     }
 
-    function addMedicalRecord(
-        address _patientAddress,
-        string calldata _diagnosis,
-        string calldata _treatment,
-        string calldata _medications
-    ) external onlyRegisteredDoctor onlyVerifiedDoctor {
-        require(registeredPatients[_patientAddress], "Patient not registered");
-        require(patients[_patientAddress].authorizedDoctors[msg.sender], "Doctor not authorized");
+    // Doctor functions
+    function registerAsDoctor(string calldata ipfsHash, string calldata specialization) external {
+        require(bytes(ipfsHash).length > 0, "IPFS hash required");
+        require(bytes(specialization).length > 0, "Specialization required");
+        require(!doctors[msg.sender].isActive, "Already registered as doctor");
 
-        Patient storage p = patients[_patientAddress];
-        p.recordCount++;
-        totalRecords++;
+        doctors[msg.sender] = Doctor({
+            ipfsHash: ipfsHash,
+            isVerified: false,
+            isActive: true,
+            createdAt: block.timestamp,
+            specialization: specialization
+        });
 
-        MedicalRecord storage record = p.records[p.recordCount];
-        record.recordId = p.recordCount;
-        record.doctor = msg.sender;
-        record.diagnosis = _diagnosis;
-        record.treatment = _treatment;
-        record.medications = _medications;
-        record.timestamp = block.timestamp;
-        record.isActive = true;
-
-        doctors[msg.sender].patientCount++;
-
-        emit RecordAdded(_patientAddress, p.recordCount, msg.sender);
+        registeredDoctors.push(msg.sender);
+        emit DoctorRegistered(msg.sender, ipfsHash, specialization);
     }
 
-    function getPatientInfo(address _patientAddress) 
-        external 
-        view 
-        returns (
-            string memory name,
-            uint256 age,
-            string memory bloodType,
-            uint256 recordCount,
-            bool isRegistered
-        ) 
-    {
-        require(_patientAddress == msg.sender || registeredDoctors[msg.sender], "Access denied");
-        require(registeredPatients[_patientAddress], "Patient not registered");
+    function verifyDoctor(address doctor) external onlyOwner {
+        require(doctors[doctor].isActive, "Doctor not registered");
+        require(!doctors[doctor].isVerified, "Already verified");
         
-        if (registeredDoctors[msg.sender]) {
-            require(patients[_patientAddress].authorizedDoctors[msg.sender], "Doctor not authorized");
-        }
-
-        Patient storage p = patients[_patientAddress];
-        return (p.name, p.age, p.bloodType, p.recordCount, p.isRegistered);
+        doctors[doctor].isVerified = true;
+        emit DoctorVerified(doctor);
     }
 
-    function getMedicalRecord(address _patientAddress, uint256 _recordId) 
-        external 
-        view 
-        returns (
-            address doctor,
-            string memory diagnosis,
-            string memory treatment,
-            string memory medications,
-            uint256 timestamp,
-            bool isActive
-        ) 
-    {
-        require(_patientAddress == msg.sender || registeredDoctors[msg.sender], "Access denied");
-        require(registeredPatients[_patientAddress], "Patient not registered");
+    // Appointment functions
+    function scheduleAppointment(address doctor, uint256 scheduledTime, string calldata notes) external onlyPatient {
+        require(doctors[doctor].isActive && doctors[doctor].isVerified, "Doctor not available");
+        require(scheduledTime > block.timestamp, "Cannot schedule in the past");
+        require(patientDoctorAccess[msg.sender][doctor], "No access granted to this doctor");
+
+        uint256 appointmentId = appointmentCounter++;
         
-        if (registeredDoctors[msg.sender]) {
-            require(patients[_patientAddress].authorizedDoctors[msg.sender], "Doctor not authorized");
-        }
+        appointments[appointmentId] = Appointment({
+            patient: msg.sender,
+            doctor: doctor,
+            scheduledTime: scheduledTime,
+            createdAt: block.timestamp,
+            isCompleted: false,
+            isCancelled: false,
+            notes: notes
+        });
 
-        Patient storage p = patients[_patientAddress];
-        require(_recordId > 0 && _recordId <= p.recordCount, "Invalid record ID");
+        patientAppointments[msg.sender].push(appointmentId);
+        doctorAppointments[doctor].push(appointmentId);
 
-        MedicalRecord storage record = p.records[_recordId];
-        return (
-            record.doctor,
-            record.diagnosis,
-            record.treatment,
-            record.medications,
-            record.timestamp,
-            record.isActive
+        emit AppointmentScheduled(appointmentId, msg.sender, doctor, scheduledTime);
+    }
+
+    function completeAppointment(uint256 appointmentId) external onlyVerifiedDoctor {
+        require(appointments[appointmentId].doctor == msg.sender, "Not your appointment");
+        require(!appointments[appointmentId].isCompleted, "Already completed");
+        require(!appointments[appointmentId].isCancelled, "Appointment cancelled");
+
+        appointments[appointmentId].isCompleted = true;
+        emit AppointmentCompleted(appointmentId);
+    }
+
+    function cancelAppointment(uint256 appointmentId) external {
+        Appointment storage apt = appointments[appointmentId];
+        require(apt.patient == msg.sender || apt.doctor == msg.sender, "Not authorized");
+        require(!apt.isCompleted, "Cannot cancel completed appointment");
+        require(!apt.isCancelled, "Already cancelled");
+
+        apt.isCancelled = true;
+        emit AppointmentCancelled(appointmentId);
+    }
+
+    // Medical Records functions
+    function addMedicalRecord(address patient, string calldata ipfsHash, string calldata recordType) external onlyVerifiedDoctor {
+        require(patients[patient].isActive, "Patient not registered");
+        require(patientDoctorAccess[patient][msg.sender], "No access to patient records");
+        require(bytes(ipfsHash).length > 0, "IPFS hash required");
+        require(bytes(recordType).length > 0, "Record type required");
+
+        patientRecords[patient].push(MedicalRecord({
+            doctor: msg.sender,
+            timestamp: block.timestamp,
+            ipfsHash: ipfsHash,
+            recordType: recordType
+        }));
+
+        emit MedicalRecordAdded(patient, msg.sender, recordType);
+    }
+
+    // Access Control functions
+    function grantDoctorAccess(address doctor) external onlyPatient {
+        require(doctors[doctor].isActive && doctors[doctor].isVerified, "Doctor not available");
+        require(!patientDoctorAccess[msg.sender][doctor], "Access already granted");
+
+        patientDoctorAccess[msg.sender][doctor] = true;
+        emit AccessGranted(msg.sender, doctor);
+    }
+
+    function revokeDoctorAccess(address doctor) external onlyPatient {
+        require(patientDoctorAccess[msg.sender][doctor], "Access not granted");
+
+        patientDoctorAccess[msg.sender][doctor] = false;
+        emit AccessRevoked(msg.sender, doctor);
+    }
+
+    // View functions
+    function getPatientAppointments(address patient) external view returns (uint256[] memory) {
+        return patientAppointments[patient];
+    }
+
+    function getDoctorAppointments(address doctor) external view returns (uint256[] memory) {
+        return doctorAppointments[doctor];
+    }
+
+    function getPatientRecordCount(address patient) external view returns (uint256) {
+        return patientRecords[patient].length;
+    }
+
+    function getPatientRecord(address patient, uint256 index) external view returns (address doctor, uint256 timestamp, string memory ipfsHash, string memory recordType) {
+        require(index < patientRecords[patient].length, "Invalid record index");
+        require(
+            msg.sender == patient || 
+            (doctors[msg.sender].isVerified && patientDoctorAccess[patient][msg.sender]),
+            "No access to records"
         );
+
+        MedicalRecord storage record = patientRecords[patient][index];
+        return (record.doctor, record.timestamp, record.ipfsHash, record.recordType);
     }
 
-    function getDoctorInfo(address _doctorAddress) 
-        external 
-        view 
-        returns (
-            string memory name,
-            string memory specialization,
-            bool isVerified,
-            uint256 patientCount
-        ) 
-    {
-        require(registeredDoctors[_doctorAddress], "Doctor not registered");
-        Doctor storage d = doctors[_doctorAddress];
-        return (d.name, d.specialization, d.isVerified, d.patientCount);
+    function getVerifiedDoctors() external view returns (address[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < registeredDoctors.length; i++) {
+            if (doctors[registeredDoctors[i]].isVerified) {
+                count++;
+            }
+        }
+
+        address[] memory result = new address[](count);
+        uint256 index = 0;
+        for (uint256 i = 0; i < registeredDoctors.length; i++) {
+            if (doctors[registeredDoctors[i]].isVerified) {
+                result[index++] = registeredDoctors[i];
+            }
+        }
+
+        return result;
     }
 
-    function revokeDoctor(address _doctorAddress) 
-        external 
-        onlyRegisteredPatient 
-    {
-        patients[msg.sender].authorizedDoctors[_doctorAddress] = false;
+    function hasAccess(address patient, address doctor) external view returns (bool) {
+        return patientDoctorAccess[patient][doctor];
     }
 
-    function isAuthorized(address _patientAddress, address _doctorAddress) 
-        external 
-        view 
-        returns (bool) 
-    {
-        return patients[_patientAddress].authorizedDoctors[_doctorAddress];
+    function isPatientRegistered(address user) external view returns (bool) {
+        return patients[user].isActive;
     }
 
-    function getStats() 
-        external 
-        view 
-        returns (uint256, uint256, uint256) 
-    {
-        return (patientCount, doctorCount, totalRecords);
+    function isDoctorVerified(address user) external view returns (bool) {
+        return doctors[user].isActive && doctors[user].isVerified;
     }
 }
