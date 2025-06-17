@@ -1,7 +1,41 @@
 # 🏥 Healthcare System DApp
 
-A decentralized healthcare management system built on blockchain technology that ensures secure, transparent, and efficient management of medical records, appointments, and healthcare provider verification.
+## 📑 Table of Contents
 
+- [📋 Project Description](#-project-description)
+- [🎯 Project Vision](#-project-vision)
+- [📍 Contract Address](#-contract-address)
+- [✨ Key Features](#-key-features)
+  - [👥 User Management](#-user-management)
+  - [📅 Appointment Management](#-appointment-management)
+  - [📋 Medical Records](#-medical-records)
+  - [🔍 Healthcare Provider Directory](#-healthcare-provider-directory)
+  - [🔐 Security Features](#-security-features)
+- [🚀 Future Scope](#-future-scope)
+  - [Phase 2 Enhancements](#phase-2-enhancements)
+  - [Phase 3 Features](#phase-3-features)
+  - [Long-term Vision](#long-term-vision)
+- [🖥️ Frontend Showcase](#️-frontend-showcase)
+  - [User Interface Features](#user-interface-features)
+  - [Key Components](#key-components)
+- [Screenshots](#screenshots)
+- [🚀 Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Smart Contract Deployment](#smart-contract-deployment)
+- [🛠️ Technology Stack](#️-technology-stack)
+  - [Frontend](#frontend)
+  - [Blockchain](#blockchain)
+  - [Development Tools](#development-tools)
+  - [Infrastructure](#infrastructure)
+- [🤝 Contribution](#-contribution)
+  - [Development Process](#development-process)
+  - [Contribution Guidelines](#contribution-guidelines)
+  - [Areas for Contribution](#areas-for-contribution)
+- [📞 Contact](#-contact)
+  - [Project Team](#project-team)
+
+---
 ## 📋 Project Description
 
 The Healthcare System DApp is a revolutionary blockchain-based platform that digitizes and secures healthcare data management. By leveraging smart contracts on the Ethereum blockchain, this system provides patients, doctors, and healthcare administrators with a transparent, immutable, and secure way to manage medical records, schedule appointments, and verify healthcare providers.
