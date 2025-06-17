@@ -22,7 +22,7 @@ Our vision is to create a **patient-centric healthcare ecosystem** where:
 ## 📍 Contract Address
 
 ```
-Contract Address: [TO BE UPDATED AFTER DEPLOYMENT]
+Contract Address: 0x01D7678257D96280F6c882484ee8037bb79E6af7
 Network: Core Blockchain Testnet2
 ```
 
@@ -96,6 +96,11 @@ Network: Core Blockchain Testnet2
 - **Appointment Scheduler**: Intuitive appointment booking interface
 - **Medical Records Dashboard**: Comprehensive record viewing and management
 - **Doctor Directory**: Searchable healthcare provider listings
+
+## Screenshots 
+
+![Screenshot 2025-06-16 083034](https://github.com/user-attachments/assets/fe9c0394-904f-4272-b045-103e508be458)
+![Screenshot 2025-06-16 181558](https://github.com/user-attachments/assets/9336ccd6-3420-424e-abaf-c54546e36fc6)
 
 ## 🚀 Getting Started
 
