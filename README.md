@@ -4,7 +4,6 @@
 
 - [📋 Project Description](#-project-description)
 - [🎯 Project Vision](#-project-vision)
-- [📍 Contract Address](#-contract-address)
 - [✨ Key Features](#-key-features)
   - [👥 User Management](#-user-management)
   - [📅 Appointment Management](#-appointment-management)
@@ -18,7 +17,8 @@
 - [🖥️ Frontend Showcase](#️-frontend-showcase)
   - [User Interface Features](#user-interface-features)
   - [Key Components](#key-components)
-- [Screenshots](#screenshots)
+- [📍 Contract Address](#-contract-address)
+- [📷 Screenshots & Video](#screenshots)
 - [🚀 Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
@@ -129,7 +129,7 @@ Contract Address: 0x01D7678257D96280F6c882484ee8037bb79E6af7
 Network: Core Blockchain Testnet2
 ```
 
-## Screenshots & Video
+## 📷 Screenshots & Video
 
 ![Screenshot 2025-06-16 083034](https://github.com/user-attachments/assets/fe9c0394-904f-4272-b045-103e508be458)
 ![Screenshot 2025-06-16 181558](https://github.com/user-attachments/assets/9336ccd6-3420-424e-abaf-c54546e36fc6)
