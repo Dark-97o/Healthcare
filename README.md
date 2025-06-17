@@ -53,15 +53,6 @@ Our vision is to create a **patient-centric healthcare ecosystem** where:
 - **Accessibility**: Universal access to healthcare records from anywhere
 - **Trust**: Verified healthcare providers through blockchain-based credentials
 
-## 📍 Contract Address
-
-```
-Contract Address: 0x01D7678257D96280F6c882484ee8037bb79E6af7
-Network: Core Blockchain Testnet2
-```
-
-*Note: Please update the CONTRACT_ADDRESS variable in your frontend configuration after smart contract deployment.*
-
 ## ✨ Key Features
 
 ### 👥 User Management
@@ -131,10 +122,19 @@ Network: Core Blockchain Testnet2
 - **Medical Records Dashboard**: Comprehensive record viewing and management
 - **Doctor Directory**: Searchable healthcare provider listings
 
-## Screenshots 
+## 📍 Contract Address
+
+```
+Contract Address: 0x01D7678257D96280F6c882484ee8037bb79E6af7
+Network: Core Blockchain Testnet2
+```
+
+## Screenshots & Video
 
 ![Screenshot 2025-06-16 083034](https://github.com/user-attachments/assets/fe9c0394-904f-4272-b045-103e508be458)
 ![Screenshot 2025-06-16 181558](https://github.com/user-attachments/assets/9336ccd6-3420-424e-abaf-c54546e36fc6)
+
+
 
 ## 🚀 Getting Started
 
