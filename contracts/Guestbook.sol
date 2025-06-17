@@ -5,7 +5,7 @@ contract HealthcareSystem {
     struct Patient {
         string name;
         uint256 age;
-        string medicalRecordHash; // IPFS hash for medical records
+        string medicalRecordHash; 
         bool isActive;
         uint256 createdAt;
         uint256 updatedAt;
@@ -24,7 +24,7 @@ contract HealthcareSystem {
         address patient;
         address doctor;
         uint256 scheduledTime;
-        uint256 duration; // in minutes
+        uint256 duration;
         string notes;
         bool isCompleted;
         bool isCancelled;
@@ -35,7 +35,7 @@ contract HealthcareSystem {
         address doctor;
         string diagnosis;
         string treatment;
-        string medicationHash; // IPFS hash for prescription details
+        string medicationHash;
         uint256 timestamp;
     }
 
