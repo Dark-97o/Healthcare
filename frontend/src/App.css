@@ -1,7 +1,8 @@
 .App {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
+  background: #000000;
   position: relative;
+  overflow: hidden;
 }
 
 .App::before {
@@ -12,15 +13,49 @@
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 80%, #00d4aa22 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, #00a8ff22 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, #0078ff11 0%, transparent 50%);
+    linear-gradient(0deg, transparent 24%, rgba(0, 212, 170, 0.05) 25%, rgba(0, 212, 170, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 212, 170, 0.05) 75%, rgba(0, 212, 170, 0.05) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, rgba(0, 212, 170, 0.05) 25%, rgba(0, 212, 170, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 212, 170, 0.05) 75%, rgba(0, 212, 170, 0.05) 76%, transparent 77%, transparent);
+  background-size: 50px 50px;
+  animation: grid-move 20s linear infinite;
   pointer-events: none;
   z-index: 0;
 }
 
+.App::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, #00d4aa15 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, #00a8ff15 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, #0078ff08 0%, transparent 50%),
+    radial-gradient(circle at 60% 60%, #ff475710 0%, transparent 50%);
+  animation: ambient-glow 8s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes grid-move {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+@keyframes ambient-glow {
+  0% { 
+    opacity: 0.3;
+    filter: blur(0px);
+  }
+  100% { 
+    opacity: 0.7;
+    filter: blur(2px);
+  }
+}
+
 .App-header {
-  background: rgba(15, 20, 35, 0.95);
+  background: rgba(5, 10, 15, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 212, 170, 0.1);
   box-shadow: 
@@ -35,6 +70,32 @@
   color: #e8f4f8;
   position: relative;
   z-index: 1;
+}
+
+.App-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(45deg, transparent 30%, rgba(0, 212, 170, 0.02) 50%, transparent 70%),
+    linear-gradient(-45deg, transparent 30%, rgba(0, 168, 255, 0.02) 50%, transparent 70%);
+  animation: diagonal-sweep 15s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+@keyframes diagonal-sweep {
+  0%, 100% { 
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% { 
+    transform: translateX(100%);
+    opacity: 1;
+  }
 }
 
 h1 {
@@ -62,12 +123,18 @@ h1::after {
   width: 60%;
   height: 2px;
   background: linear-gradient(90deg, transparent, #00d4aa, transparent);
-  animation: pulse 2s ease-in-out infinite alternate;
+  animation: pulse-line 2s ease-in-out infinite alternate;
 }
 
-@keyframes pulse {
-  0% { opacity: 0.4; }
-  100% { opacity: 1; }
+@keyframes pulse-line {
+  0% { 
+    opacity: 0.4;
+    width: 40%;
+  }
+  100% { 
+    opacity: 1;
+    width: 80%;
+  }
 }
 
 .wallet-section {
@@ -79,7 +146,7 @@ h1::after {
   border: 2px solid #00d4aa;
   padding: 1rem 2.5rem;
   border-radius: 30px;
-  color: #0a0e27;
+  color: #ffffff;
   font-size: 1.1rem;
   font-weight: bold;
   cursor: pointer;
@@ -90,6 +157,7 @@ h1::after {
   position: relative;
   overflow: hidden;
   box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .connect-btn::before {
@@ -145,7 +213,8 @@ h1::after {
 .account-info p {
   margin: 0.5rem 0;
   font-size: 0.95rem;
-  color: #b8e6d3;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .tab-navigation {
@@ -160,7 +229,7 @@ h1::after {
   border: 2px solid rgba(0, 212, 170, 0.3);
   padding: 1rem 2rem;
   border-radius: 25px;
-  color: #b8e6d3;
+  color: #ffffff;
   cursor: pointer;
   transition: all 0.4s ease;
   font-size: 1rem;
@@ -170,6 +239,7 @@ h1::after {
   overflow: hidden;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .tab-navigation button::before {
@@ -189,13 +259,15 @@ h1::after {
   color: #ffffff;
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(0, 212, 170, 0.2);
+  background: rgba(0, 212, 170, 0.1);
 }
 
 .tab-navigation button.active {
   background: linear-gradient(45deg, #00d4aa, #00a8ff);
   border-color: #00d4aa;
-  color: #0a0e27;
+  color: #ffffff;
   box-shadow: 0 0 25px rgba(0, 212, 170, 0.4);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .tab-navigation button.active::before {
@@ -203,14 +275,15 @@ h1::after {
 }
 
 .tab-content {
-  background: rgba(15, 20, 35, 0.6);
+  background: rgba(5, 10, 15, 0.8);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 212, 170, 0.15);
   padding: 2.5rem;
   border-radius: 25px;
   margin-bottom: 2rem;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
   position: relative;
+  overflow: hidden;
 }
 
 .tab-content::before {
@@ -226,6 +299,29 @@ h1::after {
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: subtract;
   pointer-events: none;
+  animation: border-glow 3s ease-in-out infinite alternate;
+}
+
+.tab-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.1), transparent);
+  animation: content-sweep 8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes border-glow {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+@keyframes content-sweep {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 .user-type-selector {
@@ -240,12 +336,13 @@ h1::after {
   border: 2px solid rgba(0, 212, 170, 0.3);
   padding: 1rem 2rem;
   border-radius: 25px;
-  color: #b8e6d3;
+  color: #ffffff;
   cursor: pointer;
   transition: all 0.4s ease;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .user-type-selector button.active {
@@ -291,7 +388,7 @@ h1::after {
 }
 
 .form-section input::placeholder {
-  color: rgba(184, 230, 211, 0.6);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .form-section button {
@@ -299,7 +396,7 @@ h1::after {
   border: 2px solid #00d4aa;
   padding: 1.2rem;
   border-radius: 15px;
-  color: #0a0e27;
+  color: #ffffff;
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
@@ -308,6 +405,7 @@ h1::after {
   letter-spacing: 1px;
   position: relative;
   overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .form-section button::before {
@@ -409,9 +507,10 @@ h1::after {
 .appointment-card p, .record-card p, .doctor-card p {
   margin: 0.8rem 0;
   font-size: 0.95rem;
-  color: #b8e6d3;
+  color: #ffffff;
   word-break: break-all;
   line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .message {
@@ -424,6 +523,8 @@ h1::after {
   text-align: center;
   position: relative;
   overflow: hidden;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .message::before {
@@ -439,7 +540,7 @@ h1::after {
 .message.success {
   border-color: #00d4aa;
   background: rgba(0, 212, 170, 0.1);
-  color: #00d4aa;
+  color: #ffffff;
 }
 
 .message.success::before {
@@ -449,7 +550,7 @@ h1::after {
 .message.error {
   border-color: #ff4757;
   background: rgba(255, 71, 87, 0.1);
-  color: #ff6b7a;
+  color: #ffffff;
 }
 
 .message.error::before {
@@ -459,11 +560,39 @@ h1::after {
 /* Medical-themed animations */
 @keyframes heartbeat {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes data-flow {
+  0% { 
+    background-position: 0% 0%;
+    opacity: 0.6;
+  }
+  100% { 
+    background-position: 100% 100%;
+    opacity: 0.8;
+  }
 }
 
 .appointment-card:hover, .record-card:hover, .doctor-card:hover {
   animation: heartbeat 2s ease-in-out infinite;
+}
+
+.appointment-card, .record-card, .doctor-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.appointment-card::after, .record-card::after, .doctor-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.15), transparent);
+  animation: data-flow 4s linear infinite;
+  pointer-events: none;
 }
 
 /* Scanner line effect */
@@ -472,18 +601,42 @@ h1::after {
   100% { transform: translateX(100vw); }
 }
 
-.App::after {
+/* Floating particles effect */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.4;
+  }
+  50% { 
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 0.8;
+  }
+}
+
+.App-header::after {
   content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 2px;
-  height: 100vh;
-  background: linear-gradient(to bottom, transparent, #00d4aa, transparent);
-  animation: scan 8s linear infinite;
-  opacity: 0.3;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, #00d4aa, transparent),
+    radial-gradient(2px 2px at 40% 70%, #00a8ff, transparent),
+    radial-gradient(1px 1px at 90% 40%, #0078ff, transparent),
+    radial-gradient(1px 1px at 60% 10%, #00d4aa, transparent);
+  background-repeat: no-repeat;
+  background-size: 300% 300%;
+  animation: float 6s ease-in-out infinite;
   pointer-events: none;
-  z-index: 10;
+  opacity: 0.3;
+}
+
+/* Additional floating particles */
+.App-header {
+  overflow: hidden;
+}
+
+.App-header:before {
+  animation: diagonal-sweep 15s ease-in-out infinite;
 }
 
 @media (max-width: 768px) {
