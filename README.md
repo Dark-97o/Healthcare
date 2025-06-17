@@ -18,7 +18,7 @@
   - [User Interface Features](#user-interface-features)
   - [Key Components](#key-components)
 - [📍 Contract Address](#-contract-address)
-- [📷 Screenshots & Video](#screenshots)
+- [📷 Screenshots & Video](#-screenshots--video)
 - [🚀 Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
